@@ -1,77 +1,77 @@
-# Chat-to-3D All-in-One Docker - File Structure
+# Chat-to-3D All-in-One Docker - Dosya Yapısı
 
-This documentation explains the files created for the all-in-one container solution.
+Bu dokümantasyon, all-in-one container çözümü için oluşturulan dosyaları açıklar.
 
-## 📁 Directory Structure
+## 📁 Dizin Yapısı
 
 ```
 allinone/
-├── Dockerfile                  # All-in-one container definition
-├── docker-compose.yml          # Single container orchestration
-├── supervisord.conf           # Service management (3 services)
-├── start.sh                   # Container startup script
-├── install.sh                 # Automated installation script
-├── requirements-extra.txt     # Extra Python dependencies
-├── .env.example              # Example environment variables
+├── Dockerfile                  # All-in-one container tanımı
+├── docker-compose.yml          # Tek container orchestration
+├── supervisord.conf           # Servis yönetimi (3 servis)
+├── start.sh                   # Container başlangıç scripti
+├── install.sh                 # Otomatik kurulum scripti
+├── requirements-extra.txt     # Ekstra Python bağımlılıkları
+├── .env.example              # Örnek ortam değişkenleri
 ├── .dockerignore             # Docker build ignore
 ├── .gitignore                # Git ignore
-├── README.md                 # Detailed documentation
-└── QUICKSTART.md             # Quick start guide
+├── README.md                 # Detaylı dokümantasyon
+└── QUICKSTART.md             # Hızlı başlangıç kılavuzu
 
-Parent directory (../):
+Ana dizin (../):
 ├── nim_llm/
-│   └── run_llama_local.py    # Local LLM service (Transformers)
+│   └── run_llama_local.py    # Local LLM servisi (Transformers)
 └── nim_trellis/
-    └── run_trellis_local.py  # Local TRELLIS service (Python)
+    └── run_trellis_local.py  # Local TRELLIS servisi (Python)
 ```
 
-## 📄 File Descriptions
+## 📄 Dosya Açıklamaları
 
 ### Dockerfile
 
-**Purpose:** Creates the single container image
+**Amaç:** Tek container imajını oluşturur
 
-**Contents:**
+**İçerik:**
 
 - CUDA 12.8.1 base
-- Miniconda installation
-- Python 3.11.9 conda environment
-- Installs all dependencies
-- Supervisor installation
-- Model download (build time)
-- Exposes port 7860
+- Miniconda kurulumu
+- Python 3.11.9 conda ortamı
+- Tüm bağımlılıkları yükler
+- Supervisor kurulumu
+- Model indirme (build time)
+- Port 7860 expose
 
-**Features:**
+**Özellikler:**
 
-- Not multi-stage (all-in-one)
-- Service management with Supervisor
-- GPU support
-- Includes health check
+- Multi-stage değil (all-in-one)
+- Supervisor ile servis yönetimi
+- GPU desteği
+- Health check dahil
 
 ### docker-compose.yml
 
-**Purpose:** Starts and configures the container
+**Amaç:** Container'ı başlatır ve yapılandırır
 
-**Service:** `chat-to-3d-allinone`
+**Servis:** `chat-to-3d-allinone`
 
-- Single service definition
+- Single service tanımı
 - GPU reservation
-- Volume mounts
+- Volume mount'ları
 - Environment variables
 - Health check
 - Restart policy
 
-**Volumes:**
+**Volume'lar:**
 
-- `trellis-data`: Application data
+- `trellis-data`: Uygulama verileri
 - `huggingface-cache`: HF model cache
 - `torch-cache`: PyTorch cache
 
 ### supervisord.conf
 
-**Purpose:** Manages 3 services inside container
+**Amaç:** Container içinde 3 servisi yönetir
 
-**Services:**
+**Servisler:**
 
 1. **llm-service** (Priority 1)
 
@@ -91,86 +91,86 @@ Parent directory (../):
    - Auto-restart
    - 30s start delay
 
-**Log Management:**
+**Log Yönetimi:**
 
 - `/var/log/supervisor/`
-- Separate log files for each service
-- stdout and stderr separated
+- Her servis için ayrı log dosyaları
+- stdout ve stderr ayrı
 
 ### start.sh
 
-**Purpose:** Container startup operations
+**Amaç:** Container başlangıç işlemleri
 
-**Operations:**
+**İşlemler:**
 
-1. Activate conda environment
-2. Check/download models
-3. Create directories
-4. Start Supervisor
+1. Conda ortamını aktive et
+2. Model'leri kontrol et/indir
+3. Dizinleri oluştur
+4. Supervisor'u başlat
 
 ### install.sh
 
-**Purpose:** Automated installation and startup
+**Amaç:** Otomatik kurulum ve başlatma
 
-**Steps:**
+**Adımlar:**
 
-1. Check requirements (Docker, GPU, etc.)
-2. Create `.env` file
-3. Get HF token (optional)
-4. Create directories
-5. Build container
-6. Start container
-7. Health check
-8. Report results
+1. Gereksinimleri kontrol et (Docker, GPU, etc.)
+2. `.env` dosyası oluştur
+3. HF token al (opsiyonel)
+4. Dizinleri oluştur
+5. Container'ı build et
+6. Container'ı başlat
+7. Health check yap
+8. Sonuç bildir
 
 ### requirements-extra.txt
 
-**Purpose:** Extra dependencies for all-in-one
+**Amaç:** All-in-one için ekstra bağımlılıklar
 
-**Packages:**
+**Paketler:**
 
 - `fastapi`: REST API framework
 - `uvicorn`: ASGI server
 
-**Why separate:**
-Not in main requirements, only needed for local services
+**Neden ayrı:**
+Ana requirements'ta yok, sadece local servisler için gerekli
 
 ### .env.example
 
-**Purpose:** Environment variables template
+**Amaç:** Ortam değişkenleri şablonu
 
-**Variables:**
+**Değişkenler:**
 
-- `HF_TOKEN`: Hugging Face token (for Llama)
+- `HF_TOKEN`: Hugging Face token (Llama için)
 - `GRADIO_SERVER_NAME`: Gradio host
 - `GRADIO_SERVER_PORT`: Gradio port
-- `CUDA_VISIBLE_DEVICES`: GPU selection
+- `CUDA_VISIBLE_DEVICES`: GPU seçimi
 
 ### run_llama_local.py
 
-**Purpose:** Local LLM service (NIM replacement)
+**Amaç:** Local LLM servisi (NIM replacement)
 
-**Features:**
+**Özellikler:**
 
 - FastAPI REST API
 - OpenAI-compatible endpoints
 - Transformers backend
-- Llama 3.1 or Llama 2 fallback
+- Llama 3.1 veya Llama 2 fallback
 - GPU auto-detection
 - Health check endpoints
 
 **Endpoints:**
 
-- `GET /v1/health/ready`: Ready?
-- `GET /v1/health/live`: Alive?
+- `GET /v1/health/ready`: Hazır mı?
+- `GET /v1/health/live`: Çalışıyor mu?
 - `POST /v1/chat/completions`: Chat API
-- `GET /v1/models`: Model list
+- `GET /v1/models`: Model listesi
 
 ### run_trellis_local.py
 
-**Purpose:** Local TRELLIS 3D generation service
+**Amaç:** Local TRELLIS 3D generation servisi
 
-**Features:**
+**Özellikler:**
 
 - FastAPI REST API
 - TRELLIS pipeline
@@ -181,11 +181,11 @@ Not in main requirements, only needed for local services
 
 **Endpoints:**
 
-- `GET /v1/health/ready`: Ready?
-- `GET /v1/health/live`: Alive?
+- `GET /v1/health/ready`: Hazır mı?
+- `GET /v1/health/live`: Çalışıyor mu?
 - `POST /v1/infer`: 3D generation
 
-## 🔄 Workflow
+## 🔄 İş Akışı
 
 ### Build Time (Dockerfile)
 
@@ -235,43 +235,43 @@ Gradio App
     └─ TRELLIS Pipeline → 3D GLB
 ```
 
-## 🔧 Service Management
+## 🔧 Servis Yönetimi
 
-### Supervisor Commands (Inside Container)
+### Supervisor Commands (Container içinde)
 
 ```bash
-# Check status
+# Durum kontrol
 supervisorctl status
 
-# Start/stop service
+# Servis başlat/durdur
 supervisorctl start llm-service
 supervisorctl stop trellis-service
 supervisorctl restart gradio-app
 
-# Restart all services
+# Tüm servisleri yeniden başlat
 supervisorctl restart all
 
-# Follow logs
+# Logları izle
 supervisorctl tail -f llm-service
 supervisorctl tail -f trellis-service stdout
 ```
 
-### Docker Commands (On Host)
+### Docker Commands (Host'ta)
 
 ```bash
-# Start container
+# Container başlat
 docker compose up -d
 
-# Follow logs
+# Logları izle
 docker compose logs -f
 
-# Enter container
+# Container içine gir
 docker compose exec chat-to-3d-allinone bash
 
-# Service status (inside container)
+# Servis durumu (container içinde)
 docker compose exec chat-to-3d-allinone supervisorctl status
 
-# Restart container
+# Container'ı yeniden başlat
 docker compose restart
 ```
 
@@ -280,7 +280,7 @@ docker compose restart
 ### Build Time
 
 - Disk: ~30GB (layers + cache)
-- Time: 30-60 minutes (first time)
+- Time: 30-60 dakika (ilk defa)
 - Network: ~10GB (downloads)
 
 ### Runtime
@@ -288,9 +288,9 @@ docker compose restart
 - GPU VRAM: 10-15GB
 - RAM: 8-16GB
 - Disk: 50GB (models + cache)
-- CPU: 4+ cores recommended
+- CPU: 4+ cores önerilir
 
-## 🔐 Security
+## 🔐 Güvenlik
 
 ### Port Exposure
 
@@ -300,8 +300,8 @@ docker compose restart
 
 ### Credentials
 
-- HF_TOKEN: In `.env` file
-- `.env` not committed to git (.gitignore)
+- HF_TOKEN: `.env` dosyasında
+- `.env` git'e commit edilmez (.gitignore)
 
 ## 🐛 Debug
 
@@ -309,7 +309,7 @@ docker compose restart
 
 ```
 /var/log/supervisor/
-├── supervisord.log              # Main log
+├── supervisord.log              # Ana log
 ├── llm-service.out.log          # LLM stdout
 ├── llm-service.err.log          # LLM stderr
 ├── trellis-service.out.log      # TRELLIS stdout
@@ -320,55 +320,55 @@ docker compose restart
 
 ### Common Issues
 
-**Model loading error:**
+**Model yükleme hatası:**
 
 - Log: `llm-service.err.log`
-- Solution: Add HF_TOKEN
+- Çözüm: HF_TOKEN ekle
 
-**GPU not detected:**
+**GPU tanınmıyor:**
 
 - Log: `trellis-service.err.log`
-- Solution: Check NVIDIA runtime
+- Çözüm: NVIDIA runtime kontrol
 
 **Port conflict:**
 
 - Log: `gradio-app.err.log`
-- Solution: Change port
+- Çözüm: Port değiştir
 
-## 📝 Development
+## 📝 Geliştirme
 
-### Adding New Service
+### Yeni Servis Eklemek
 
-1. Add to `supervisord.conf`:
+1. `supervisord.conf`'a ekle:
 
 ```ini
-[program:new-service]
-command=/opt/conda/bin/conda run -n trellis python /app/new_service.py
+[program:yeni-servis]
+command=/opt/conda/bin/conda run -n trellis python /app/yeni_servis.py
 directory=/app
 autostart=true
 autorestart=true
 ```
 
-2. Rebuild container:
+2. Container'ı rebuild et:
 
 ```bash
 docker compose build --no-cache
 docker compose up -d
 ```
 
-### Adding Dependency
+### Dependency Eklemek
 
-1. Add to `requirements-extra.txt`
+1. `requirements-extra.txt`'e ekle
 2. Rebuild:
 
 ```bash
 docker compose build --no-cache
 ```
 
-## 🔄 Updating
+## 🔄 Güncelleme
 
 ```bash
-# Update code
+# Kodu güncelle
 git pull
 
 # Rebuild (no cache)
@@ -379,14 +379,14 @@ docker compose down
 docker compose up -d
 ```
 
-## 📚 Related Files
+## 📚 İlgili Dosyalar
 
-- Main Docker Compose: `../docker-compose.yml`
-- Main Dockerfile: `../Dockerfile`
+- Ana Docker Compose: `../docker-compose.yml`
+- Ana Dockerfile: `../Dockerfile`
 - Original install.bat: `../install.bat`
 - Config: `../config.py`
 
 ---
 
-This documentation contains technical details of the all-in-one solution.
-For user documentation: `README.md` and `QUICKSTART.md`
+Bu dokümantasyon all-in-one çözümünün teknik detaylarını içerir.
+Kullanıcı dokümantasyonu için: `README.md` ve `QUICKSTART.md`

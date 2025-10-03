@@ -1,13 +1,13 @@
 # 📦 Volume Management Guide
 
-This documentation explains the volume structure and management of the All-in-One container.
+Bu dokümantasyon, All-in-One container'ın volume yapısını ve yönetimini açıklar.
 
-## 📁 Volume Structure
+## 📁 Volume Yapısı
 
 ```
 allinone/
-└── volumes/                      # All persistent data here
-    ├── assets/                   # Generated content
+└── volumes/                      # Tüm kalıcı veriler burada
+    ├── assets/                   # Üretilen içerik
     │   ├── images/              # Generated images
     │   │   └── *.png           # Image outputs
     │   └── models/              # 3D models
@@ -30,170 +30,170 @@ allinone/
         └── app/                # Application logs
 ```
 
-## 🔧 Volume Mount Points
+## 🔧 Volume Mount Noktaları
 
-### In docker-compose.yml:
+### docker-compose.yml İçinde:
 
 ```yaml
 volumes:
-  # Generated content (images and 3D models)
+  # Üretilen içerik (images ve 3D models)
   - ./volumes/assets:/app/assets
 
-  # Scene and generation data
+  # Scene ve generation data
   - ./volumes/trellis:/root/.trellis
 
-  # Model caches (Docker managed)
+  # Model cache'leri (Docker managed)
   - huggingface-cache:/root/.cache/huggingface
   - torch-cache:/root/.cache/torch
 
-  # Log files
+  # Log dosyaları
   - ./volumes/logs/supervisor:/var/log/supervisor
   - ./volumes/logs/app:/var/log/app
 ```
 
-## 📊 Volume Types
+## 📊 Volume Türleri
 
-### 1. Local Bind Mounts (Accessible on Host)
+### 1. Local Bind Mounts (Host'ta Erişilebilir)
 
-**assets/** - Generated content
+**assets/** - Üretilen içerik
 
 - 📍 Host: `./volumes/assets/`
 - 🐳 Container: `/app/assets/`
-- 📝 Content: Generated images, 3D models
-- 💾 Size: Variable (depends on usage)
+- 📝 İçerik: Generated images, 3D models
+- 💾 Boyut: Değişken (kullanıma göre)
 
-**trellis/** - Application data
+**trellis/** - Uygulama verisi
 
 - 📍 Host: `./volumes/trellis/`
 - 🐳 Container: `/root/.trellis/`
-- 📝 Content: Scene data, prompts, configs
-- 💾 Size: ~100MB - 1GB
+- 📝 İçerik: Scene data, prompts, configs
+- 💾 Boyut: ~100MB - 1GB
 
-**logs/** - Log files
+**logs/** - Log dosyaları
 
 - 📍 Host: `./volumes/logs/`
 - 🐳 Container: `/var/log/`
-- 📝 Content: Service and app logs
-- 💾 Size: ~10MB - 100MB
+- 📝 İçerik: Service ve app logları
+- 💾 Boyut: ~10MB - 100MB
 
-### 2. Docker Managed Volumes (Docker managed)
+### 2. Docker Managed Volumes (Docker yönetimi)
 
 **huggingface-cache** - Hugging Face model cache
 
 - 🐳 Container: `/root/.cache/huggingface/`
-- 📝 Content: Downloaded HF models
-- 💾 Size: ~5GB - 20GB
-- ⚠️ Not directly accessible on host
+- 📝 İçerik: Downloaded HF models
+- 💾 Boyut: ~5GB - 20GB
+- ⚠️ Host'ta direkt erişilemez
 
 **torch-cache** - PyTorch cache
 
 - 🐳 Container: `/root/.cache/torch/`
-- 📝 Content: PyTorch models and cache
-- 💾 Size: ~1GB - 5GB
-- ⚠️ Not directly accessible on host
+- 📝 İçerik: PyTorch models ve cache
+- 💾 Boyut: ~1GB - 5GB
+- ⚠️ Host'ta direkt erişilemez
 
-## 🎯 Usage Scenarios
+## 🎯 Kullanım Senaryoları
 
-### Accessing Generated Files
+### Üretilen Dosyalara Erişim
 
 ```bash
-# View images
+# Image'lara bak
 ls -lh volumes/assets/images/
 
-# View 3D models
+# 3D modelleri görüntüle
 ls -lh volumes/assets/models/
 
-# Copy a model
+# Bir modeli kopyala
 cp volumes/assets/models/output_*.glb ~/Downloads/
 ```
 
-### Monitoring Logs
+### Logları İzleme
 
 ```bash
-# All logs
+# Tüm loglar
 tail -f volumes/logs/supervisor/*.log
 
-# LLM service only
+# Sadece LLM servisi
 tail -f volumes/logs/supervisor/llm-service.out.log
 
-# Errors only
+# Sadece hatalar
 tail -f volumes/logs/supervisor/*err.log
 ```
 
-### Backup
+### Backup Alma
 
 ```bash
-# Backup all volumes
+# Tüm volumes'u yedekle
 tar czf backup-$(date +%Y%m%d).tar.gz volumes/
 
-# Backup assets only
+# Sadece assets'i yedekle
 tar czf assets-backup.tar.gz volumes/assets/
 
-# Backup logs only
+# Sadece logs'u yedekle
 tar czf logs-backup.tar.gz volumes/logs/
 ```
 
-### Cleanup
+### Temizlik
 
 ```bash
-# Clean images only
+# Sadece image'leri temizle
 rm -rf volumes/assets/images/*
 
-# Clean models only
+# Sadece modelleri temizle
 rm -rf volumes/assets/models/*
 
-# Clean all generated content
+# Tüm üretilen içeriği temizle
 rm -rf volumes/assets/*
 
-# Clean logs
+# Logları temizle
 rm -rf volumes/logs/supervisor/*.log
 rm -rf volumes/logs/app/*.log
 ```
 
 ## 🔄 Model Download (Runtime)
 
-### First Startup
+### İlk Başlatma
 
 ```bash
 docker compose up -d
 
-# Monitor model download logs
+# Model download loglarını izle
 docker compose logs -f | grep -i "download\|model"
 ```
 
-**Download time:** 10-30 minutes (depends on internet speed)
+**Download süresi:** 10-30 dakika (internet hızına bağlı)
 
-### Downloaded Models
+### İndirilen Modeller
 
-When container starts, `download_models.py` runs:
+Container başlatıldığında `download_models.py` çalışır:
 
 1. **Sana Sprint Model** (~2GB)
 
    - `Efficient-Large-Model/Sana_Sprint_0.6B_1024px_diffusers`
-   - For image generation
+   - Image generation için
 
 2. **NSFW Detector Model** (~500MB)
    - `ezb/NSFW-Prompt-Detector`
-   - For content filtering
+   - Content filtering için
 
-**Total:** ~2.5GB - 5GB
+**Toplam:** ~2.5GB - 5GB
 
-### Cache Location
+### Cache Konumu
 
-Models are cached:
+Modeller cache'lenir:
 
 - Hugging Face: `huggingface-cache` volume
 - PyTorch: `torch-cache` volume
 
-They won't be downloaded again on subsequent startups!
+Sonraki başlatmalarda yeniden indirilmez!
 
-## 💾 Disk Usage
+## 💾 Disk Kullanımı
 
-### Estimated Sizes
+### Tahmini Boyutlar
 
 ```
 volumes/
-├── assets/          ~1GB - 10GB    (depends on usage)
+├── assets/          ~1GB - 10GB    (kullanıma göre)
 ├── trellis/         ~100MB - 1GB
 └── logs/            ~10MB - 100MB
 
@@ -201,10 +201,10 @@ Docker Volumes:
 ├── huggingface-cache  ~5GB - 20GB
 └── torch-cache        ~1GB - 5GB
 
-Total: ~7GB - 36GB
+Toplam: ~7GB - 36GB
 ```
 
-### Check Disk Usage
+### Disk Kullanımını Kontrol Et
 
 ```bash
 # Host volumes
@@ -213,75 +213,75 @@ du -sh volumes/*
 # Docker volumes
 docker system df -v
 
-# Container disk usage
+# Container disk kullanımı
 docker compose exec chat-to-3d-allinone df -h
 ```
 
-## 🧹 Cleanup Operations
+## 🧹 Temizlik İşlemleri
 
-### Clean Generated Content
+### Üretilen İçeriği Temizle
 
 ```bash
-# Delete files only (keep directories)
+# Sadece dosyaları sil (dizinleri koru)
 rm -f volumes/assets/images/*
 rm -f volumes/assets/models/*
 ```
 
-### Clean Logs
+### Logları Temizle
 
 ```bash
-# Delete old logs
+# Eski logları sil
 find volumes/logs/ -name "*.log" -mtime +7 -delete
 
-# Or clean all
+# Veya tümünü temizle
 rm -rf volumes/logs/**/*.log
 ```
 
-### Reset All Volumes
+### Tüm Volumes'u Sıfırla
 
 ```bash
-# Stop container
+# Container'ı durdur
 docker compose down
 
-# Delete volumes
+# Volumes'u sil
 rm -rf volumes/
 
-# Restart (directories will be created automatically)
+# Yeniden başlat (dizinler otomatik oluşur)
 docker compose up -d
 ```
 
-### Clean Docker Cache
+### Docker Cache'i Temizle
 
 ```bash
-# Stop container
+# Container'ı durdur
 docker compose down -v
 
-# Delete cache volumes
+# Cache volumes'u sil
 docker volume rm allinone_huggingface-cache
 docker volume rm allinone_torch-cache
 
-# Restart (models will be downloaded again)
+# Yeniden başlat (modeller yeniden indirilir)
 docker compose up -d
 ```
 
-## 🔐 Permissions
+## 🔐 İzinler
 
-### File Ownership
+### Dosya Sahipliği
 
-Container runs as root:
+Container içinde root olarak çalışır:
 
 - Owner: `root:root`
 - Permissions: `755` (dirs), `644` (files)
 
-### Access from Host
+### Host'tan Erişim
 
-To access with normal user:
+Normal kullanıcı ile erişebilmek için:
 
 ```bash
-# Change ownership
+# Sahipliği değiştir
 sudo chown -R $USER:$USER volumes/
 
-# Or open all permissions (use with caution!)
+# Veya tüm izinleri aç (dikkatli kullan!)
 sudo chmod -R 777 volumes/
 ```
 
@@ -290,64 +290,64 @@ sudo chmod -R 777 volumes/
 ### Export
 
 ```bash
-# Export all data
+# Tüm veriyi export et
 docker compose down
 tar czf chat-to-3d-backup.tar.gz volumes/
 
-# Export important data only
+# Sadece önemli veriyi export et
 tar czf assets-backup.tar.gz volumes/assets/ volumes/trellis/
 ```
 
 ### Import
 
 ```bash
-# On new system
+# Yeni sistemde
 cd allinone
 tar xzf chat-to-3d-backup.tar.gz
 
-# Start container
+# Container'ı başlat
 docker compose up -d
 ```
 
 ## 🔍 Troubleshooting
 
-### Volume mount errors
+### Volume mount hataları
 
 ```bash
-# Check directories
+# Dizinleri kontrol et
 ls -la volumes/
 
-# Recreate
+# Yeniden oluştur
 mkdir -p volumes/{assets/{images,models},trellis/{assets,prompts,scene},logs/{supervisor,app}}
 
-# Fix permissions
+# İzinleri düzelt
 chmod -R 755 volumes/
 ```
 
-### Disk full
+### Disk dolu
 
 ```bash
-# Check usage
+# Kullanımı kontrol et
 df -h
 
-# Clean old files
+# Eski dosyaları temizle
 find volumes/assets/images/ -mtime +30 -delete
 find volumes/assets/models/ -mtime +30 -delete
 
-# Clean Docker cache
+# Docker cache'i temizle
 docker system prune -a
 ```
 
-### Logs too large
+### Logs çok büyük
 
 ```bash
-# Check log sizes
+# Log boyutlarını kontrol et
 du -sh volumes/logs/*
 
-# Delete old logs
+# Eski logları sil
 find volumes/logs/ -name "*.log" -mtime +7 -delete
 
-# Or rotate them
+# Veya rotate et
 for log in volumes/logs/**/*.log; do
     if [ -f "$log" ]; then
         mv "$log" "$log.$(date +%Y%m%d)"
@@ -358,31 +358,31 @@ done
 
 ## 📝 Best Practices
 
-1. **Regular Backups**: Backup important assets regularly
-2. **Log Rotation**: Clean old logs periodically
-3. **Disk Monitoring**: Monitor disk usage
-4. **Selective Cleanup**: Clean only unnecessary files
-5. **Version Control**: Commit important scenes to git
+1. **Regular Backups**: Önemli assetleri düzenli yedekle
+2. **Log Rotation**: Eski logları düzenli temizle
+3. **Disk Monitoring**: Disk kullanımını takip et
+4. **Selective Cleanup**: Sadece gereksiz dosyaları temizle
+5. **Version Control**: Önemli scene'leri git'e commit et
 
-## 🔗 Related Commands
+## 🔗 İlgili Komutlar
 
 ```bash
-# Show volume status
+# Volume durumunu göster
 docker compose ps -a
 docker volume ls
 
-# File system inside container
+# Container içinde dosya sistemi
 docker compose exec chat-to-3d-allinone df -h
 docker compose exec chat-to-3d-allinone ls -la /app/assets
 
-# Real-time disk usage
+# Real-time disk kullanımı
 watch -n 5 'du -sh volumes/*'
 
-# Log sizes
+# Log boyutları
 du -sh volumes/logs/**/* | sort -h
 ```
 
 ---
 
-This is a comprehensive guide for volume management.
-For more information: [README.md](README.md) and [QUICKSTART.md](QUICKSTART.md)
+Bu dokümantasyon volume yönetimi için kapsamlı bir kılavuzdur.
+Daha fazla bilgi için: [README.md](README.md) ve [QUICKSTART.md](QUICKSTART.md)

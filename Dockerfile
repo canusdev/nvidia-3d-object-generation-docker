@@ -76,11 +76,14 @@ WORKDIR /app
 COPY requirements-extra.txt ./
 
 # Install Python packages in conda environment
-RUN /opt/conda/bin/conda run -n trellis pip install --no-cache-dir --upgrade pip wheel && \
-    /opt/conda/bin/conda run -n trellis pip install --no-cache-dir setuptools==75.8.2 && \
-    /opt/conda/bin/conda run -n trellis pip install --no-cache-dir -r requirements-torch.txt && \
-    /opt/conda/bin/conda run -n trellis pip install --no-cache-dir -r requirements.txt && \
-    /opt/conda/bin/conda run -n trellis pip install --no-cache-dir -r requirements-extra.txt
+# Use shell activation instead of conda run to avoid pip issues
+RUN /bin/bash -c "source /opt/conda/etc/profile.d/conda.sh && \
+    conda activate trellis && \
+    pip install --no-cache-dir --upgrade pip wheel && \
+    pip install --no-cache-dir setuptools==75.8.2 && \
+    pip install --no-cache-dir -r requirements-torch.txt && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir -r requirements-extra.txt"
 
 # Copy and apply patches (local services and configurations)
 COPY nim_llm/run_llama_local.py /app/nim_llm/

@@ -1,37 +1,40 @@
 # 🚀 Chat-to-3D All-in-One Docker
 
-**Tek bir Docker container'da tüm servisler!**
+**All services in a single Docker container!**
 
-Bu çözüm, Chat-to-3D projesinin tüm bileşenlerini (LLM, TRELLIS 3D generation, ve Gradio UI) tek bir container içinde çalıştırır.
+This solution runs all components of the Chat-to-3D project (LLM, TRELLIS 3D generation, and Gradio UI) in a single container.
 
-## 🌟 Özellikler
+> **Original Project**: [NVIDIA-AI-Blueprints/3d-object-generation](https://github.com/NVIDIA-AI-Blueprints/3d-object-generation)  
+> **This Repository**: Dockerized all-in-one version for easy deployment
 
-- ✅ **Tek Container**: Tüm servisler tek container'da
-- ✅ **Basit Kurulum**: Sadece `./install.sh`
-- ✅ **Düşük Kaynak**: NIM container'ları yerine yerel Python
-- ✅ **Supervisor**: Tüm servisler otomatik yönetilir
-- ✅ **GPU Hızlandırma**: CUDA desteği ile hızlı çalışma
+## 🌟 Features
 
-## 🎯 NIM Container vs All-in-One
+- ✅ **Single Container**: All services in one container
+- ✅ **Simple Setup**: Just run `./install.sh`
+- ✅ **Lower Resources**: Local Python instead of NIM containers
+- ✅ **Supervisor**: All services managed automatically
+- ✅ **GPU Acceleration**: Fast execution with CUDA support
 
-| Özellik          | NIM Containers | All-in-One     |
-| ---------------- | -------------- | -------------- |
-| Container Sayısı | 3 ayrı         | 1 tek          |
-| Bellek Kullanımı | ~20-30GB       | ~10-15GB       |
-| Kurulum Süresi   | 60-120 dakika  | 30-60 dakika   |
-| NGC API Key      | Gerekli        | Gerekmez       |
-| Başlatma Süresi  | 5-10 dakika    | 2-3 dakika     |
-| Yönetim          | Docker Compose | Docker Compose |
+## 🎯 NIM Containers vs All-in-One
 
-## 📋 Gereksinimler
+| Feature         | NIM Containers | All-in-One     |
+| --------------- | -------------- | -------------- |
+| Container Count | 3 separate     | 1 single       |
+| Memory Usage    | ~20-30GB       | ~10-15GB       |
+| Setup Time      | 60-120 minutes | 30-60 minutes  |
+| NGC API Key     | Required       | Not required   |
+| Startup Time    | 5-10 minutes   | 2-3 minutes    |
+| Management      | Docker Compose | Docker Compose |
+
+## 📋 Requirements
 
 - Docker 20.10+
 - Docker Compose v2.0+
 - NVIDIA Container Toolkit
-- NVIDIA GPU (16GB+ VRAM önerilir)
-- 50GB+ disk alanı
+- NVIDIA GPU (16GB+ VRAM recommended)
+- 50GB+ disk space
 
-### NVIDIA Container Toolkit Kurulumu
+### NVIDIA Container Toolkit Installation
 
 ```bash
 # Ubuntu/Debian
@@ -47,9 +50,9 @@ sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 ```
 
-## 🚀 Hızlı Başlangıç
+## 🚀 Quick Start
 
-### 1. Kurulum
+### 1. Installation
 
 ```bash
 cd allinone
@@ -57,56 +60,56 @@ chmod +x install.sh
 ./install.sh
 ```
 
-### 2. Kullanım
+### 2. Usage
 
-Tarayıcınızda açın: http://localhost:7860
+Open in your browser: http://localhost:7860
 
-## 📦 Manuel Kurulum
+## 📦 Manual Installation
 
 ```bash
-# .env dosyasını oluştur (opsiyonel)
+# Create .env file (optional)
 cp .env.example .env
-nano .env  # HF_TOKEN ekle (opsiyonel)
+nano .env  # Add HF_TOKEN (optional)
 
-# Container'ı build et ve başlat
+# Build and start container
 docker compose build
 docker compose up -d
 
-# Logları izle
+# Follow logs
 docker compose logs -f
 ```
 
-## 🔧 Yönetim Komutları
+## 🔧 Management Commands
 
 ```bash
-# Container'ı başlat
+# Start container
 docker compose up -d
 
-# Container'ı durdur
+# Stop container
 docker compose down
 
-# Logları görüntüle
+# View logs
 docker compose logs -f
 
-# Servis loglarını ayrı ayrı görüntüle
+# View individual service logs
 docker compose exec chat-to-3d-allinone tail -f /var/log/supervisor/llm-service.out.log
 docker compose exec chat-to-3d-allinone tail -f /var/log/supervisor/trellis-service.out.log
 docker compose exec chat-to-3d-allinone tail -f /var/log/supervisor/gradio-app.out.log
 
-# Container içine gir
+# Enter container
 docker compose exec chat-to-3d-allinone bash
 
-# Servisleri yeniden başlat (container içinde)
+# Restart services (inside container)
 docker compose exec chat-to-3d-allinone supervisorctl restart all
 
-# Container'ı yeniden başlat
+# Restart container
 docker compose restart
 
-# Tüm verileri sil
+# Remove all data
 docker compose down -v
 ```
 
-## 🏗️ Mimari
+## 🏗️ Architecture
 
 ```
 ┌─────────────────────────────────────────┐
@@ -127,19 +130,19 @@ docker compose down -v
            └─── Port 7860 (Exposed)
 ```
 
-### Servis Detayları
+### Service Details
 
-**Supervisor**: Tüm servisleri yönetir
+**Supervisor**: Manages all services
 
-- Servisleri otomatik başlatır
-- Çökme durumunda yeniden başlatır
-- Log yönetimi yapar
+- Automatically starts services
+- Restarts on failure
+- Manages logs
 
 **LLM Service** (Port 19002, internal):
 
-- Transformers tabanlı LLM
+- Transformers-based LLM
 - OpenAI-compatible API
-- Llama 3.1 veya Llama 2 fallback
+- Llama 3.1 or Llama 2 fallback
 
 **TRELLIS Service** (Port 8000, internal):
 
@@ -150,126 +153,126 @@ docker compose down -v
 **Gradio App** (Port 7860, exposed):
 
 - Web UI
-- İki servisi kullanır
-- Kullanıcı arayüzü
+- Uses both services
+- User interface
 
-## 🔍 Sorun Giderme
+## 🔍 Troubleshooting
 
-### Container başlamıyor?
+### Container won't start?
 
 ```bash
-# Logları kontrol et
+# Check logs
 docker compose logs -f
 
-# Belirli bir servisin logları
+# Specific service logs
 docker compose exec chat-to-3d-allinone tail -f /var/log/supervisor/llm-service.err.log
 ```
 
-### GPU tanınmıyor?
+### GPU not detected?
 
 ```bash
-# GPU erişimini test et
+# Test GPU access
 docker run --rm --gpus all nvidia/cuda:12.8.1-base-ubuntu22.04 nvidia-smi
 
-# Container içinde GPU kontrolü
+# Check GPU inside container
 docker compose exec chat-to-3d-allinone nvidia-smi
 ```
 
-### Model yükleme hataları?
+### Model loading errors?
 
-Hugging Face token gerekli olabilir (Llama modelleri için):
+Hugging Face token may be required (for Llama models):
 
-1. https://huggingface.co/settings/tokens adresinden token alın
-2. `.env` dosyasına ekleyin: `HF_TOKEN=your_token_here`
-3. Container'ı yeniden başlatın: `docker compose restart`
+1. Get token from https://huggingface.co/settings/tokens
+2. Add to `.env` file: `HF_TOKEN=your_token_here`
+3. Restart container: `docker compose restart`
 
-### Bellek yetersizliği?
+### Out of memory?
 
-`docker-compose.yml` dosyasında `shm_size` değerini artırın:
+Increase `shm_size` in `docker-compose.yml`:
 
 ```yaml
-shm_size: 32gb # Varsayılan: 16gb
+shm_size: 32gb # Default: 16gb
 ```
 
-### Servisler birbirini bulamıyor?
+### Services can't find each other?
 
-Container içinde servislerin durumunu kontrol edin:
+Check service status inside container:
 
 ```bash
 docker compose exec chat-to-3d-allinone supervisorctl status
 ```
 
-Servisleri yeniden başlatın:
+Restart services:
 
 ```bash
 docker compose exec chat-to-3d-allinone supervisorctl restart all
 ```
 
-## 📊 Performans
+## 📊 Performance
 
-- **İlk Başlatma**: 30-60 dakika (model indirme)
-- **Sonraki Başlatmalar**: 2-3 dakika
-- **GPU Belleği**: 10-15GB
-- **Disk Kullanımı**: ~50GB (modellerle)
+- **First Startup**: 30-60 minutes (model download)
+- **Subsequent Startups**: 2-3 minutes
+- **GPU Memory**: 10-15GB
+- **Disk Usage**: ~50GB (with models)
 
-## 🔄 Güncelleme
+## 🔄 Updating
 
 ```bash
-# En son kodu çek
+# Pull latest code
 git pull
 
-# Container'ı yeniden build et
+# Rebuild container
 docker compose build --no-cache
 
-# Yeniden başlat
+# Restart
 docker compose up -d
 ```
 
-## 🆚 Ana Docker Compose ile Karşılaştırma
+## 🆚 Comparison with Main Docker Compose
 
-### All-in-One Avantajları:
+### All-in-One Advantages:
 
-- ✅ Daha basit yapı
-- ✅ Daha az bellek kullanımı
-- ✅ Daha hızlı başlatma
-- ✅ NGC API key gerekmez
-- ✅ Daha kolay debug
+- ✅ Simpler structure
+- ✅ Lower memory usage
+- ✅ Faster startup
+- ✅ No NGC API key needed
+- ✅ Easier to debug
 
-### Ana Docker Compose Avantajları:
+### Main Docker Compose Advantages:
 
-- ✅ NVIDIA NIM optimizasyonları
-- ✅ Daha iyi performans (bazı durumlarda)
-- ✅ Servisler bağımsız ölçeklenebilir
-- ✅ Resmi NVIDIA imajları
+- ✅ NVIDIA NIM optimizations
+- ✅ Better performance (in some cases)
+- ✅ Services can scale independently
+- ✅ Official NVIDIA images
 
-## 📝 Notlar
+## 📝 Notes
 
-- İlk çalıştırmada modeller indirilir
-- Modeller cache'lenir, sonraki başlatmalar hızlıdır
-- Tüm veriler Docker volume'larında saklanır
-- `.env` dosyanızı git'e commit etmeyin
+- Models are downloaded on first run
+- Models are cached, subsequent startups are fast
+- All data is stored in Docker volumes
+- Don't commit your `.env` file to git
 
-## 🐛 Sorun Bildirme
+## 🐛 Bug Reporting
 
-Sorun yaşarsanız, lütfen şu bilgileri toplayın:
+If you encounter issues, please collect the following information:
 
 ```bash
-# Sistem bilgileri
+# System information
 docker version
 docker compose version
 nvidia-smi
 
-# Container logları
+# Container logs
 docker compose logs > logs.txt
 
-# Supervisor durumu
+# Supervisor status
 docker compose exec chat-to-3d-allinone supervisorctl status
 ```
 
-## 📄 Lisans
+## 📄 License
 
-Apache 2.0 License - Detaylar için LICENSE dosyasına bakınız.
+Apache 2.0 License - See LICENSE file for details.
 
 ---
 
-**Hazır mısınız?** Hemen başlayın: `./install.sh` 🚀
+**Ready to start?** Begin now: `./install.sh` 🚀
