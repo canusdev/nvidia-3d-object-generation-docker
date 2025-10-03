@@ -30,6 +30,31 @@ jobs:
       id-token: write
 
     steps:
+      - name: Free up disk space
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+          
+          # Remove unnecessary tools and packages
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/local/.ghcup
+          
+          # Clean apt cache
+          sudo apt-get clean
+          sudo apt-get autoremove -y
+          sudo apt-get autoclean -y
+          
+          # Remove docker images and containers
+          docker system prune -af --volumes
+          
+          echo "Disk space after cleanup:"
+          df -h
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -86,6 +111,17 @@ jobs:
           build-args: |
             REPO_URL=https://github.com/NVIDIA-AI-Blueprints/3d-object-generation.git
             REPO_BRANCH=main
+          # Optimize build
+          no-cache-filters: ""
+          provenance: false
+          sbom: false
+
+      - name: Clean up build cache
+        if: always()
+        run: |
+          docker builder prune -af --filter "until=24h"
+          echo "Disk space after build:"
+          df -h
 
       - name: Generate artifact attestation
         if: github.event_name != 'pull_request'
