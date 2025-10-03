@@ -88,8 +88,14 @@ RUN /bin/bash -c "source /opt/conda/etc/profile.d/conda.sh && \
 # Copy and apply patches (local services and configurations)
 COPY nim_llm/run_llama_local.py /app/nim_llm/
 COPY nim_trellis/run_trellis_local.py /app/nim_trellis/
+COPY patch_app.py /app/
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY start.sh /app/start.sh
+
+# Patch app.py to disable NIM subprocess launching (supervisor manages services)
+RUN /bin/bash -c "source /opt/conda/etc/profile.d/conda.sh && \
+    conda activate trellis && \
+    python /app/patch_app.py"
 
 # Make scripts executable
 RUN chmod +x /app/start.sh && \
