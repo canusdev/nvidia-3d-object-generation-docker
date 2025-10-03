@@ -1,0 +1,35 @@
+# Docker and environment files
+.env
+*.log
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation (not needed in container)
+README.md
+QUICKSTART.md
+ARCHITECTURE.md
+
+# Git
+.git/
+.gitignore
+

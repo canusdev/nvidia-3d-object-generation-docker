@@ -1,0 +1,55 @@
+#
+# SPDX-FileCopyrightText: Copyright (c) 1993-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+
+services:
+  chat-to-3d-allinone:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - REPO_URL=https://github.com/NVIDIA-AI-Blueprints/3d-object-generation.git
+        - REPO_BRANCH=main
+    container_name: chat_to_3d_allinone
+    runtime: nvidia
+    environment:
+      - CHAT_TO_3D_PATH=/app
+      - GRADIO_SERVER_NAME=0.0.0.0
+      - GRADIO_SERVER_PORT=7860
+      - HF_TOKEN=${HF_TOKEN}
+      - CUDA_VISIBLE_DEVICES=0
+    ports:
+      - "7860:7860"
+    volumes:
+      # Application assets (images and 3D models)
+      - ./volumes/assets:/app/assets
+      # Scene and generation data
+      - ./volumes/trellis:/root/.trellis
+      # Model caches
+      - ./volumes/huggingface-cache:/root/.cache/huggingface
+      - ./volumes/torch-cache:/root/.cache/torch
+      # Logs
+      - ./volumes/logs/supervisor:/var/log/supervisor
+      - ./volumes/logs/app:/var/log/app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 900s  # 15 minutes for model download + startup
+    restart: unless-stopped
+    shm_size: 16gb
+
+volumes:
+  huggingface-cache:
+    driver: local
+  torch-cache:
+    driver: local
